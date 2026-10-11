@@ -148,7 +148,9 @@ def test_batch_integration_equals_individual_runs():
     batch = simulate(HodgkinHuxley(stimulus=StepCurrent(amps, t_on=2.0)), (0.0, 30.0))
     for k, a in enumerate(amps):
         single = simulate(HodgkinHuxley(stimulus=StepCurrent(a, t_on=2.0)), (0.0, 30.0))
-        np.testing.assert_allclose(batch.y[:, k, :], single.y, rtol=1e-13, atol=1e-13)
+        # Not bitwise: NumPy may evaluate exp() on long arrays with SIMD code and on short ones
+        # with the platform libm, which can differ in the last bits (seen on Linux CI).
+        np.testing.assert_allclose(batch.y[:, k, :], single.y, rtol=1e-10, atol=1e-10)
 
 
 def test_rk4_counts_function_evaluations():

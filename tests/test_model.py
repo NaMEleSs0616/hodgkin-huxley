@@ -142,7 +142,7 @@ def test_rhs_batch_equals_columnwise():
     cols = np.column_stack(
         [HodgkinHuxley(stimulus=ConstantCurrent(I[k])).rhs(0.0, Y[:, k]) for k in range(25)]
     )
-    np.testing.assert_allclose(batch, cols, rtol=1e-15)
+    np.testing.assert_allclose(batch, cols, rtol=1e-12, atol=1e-12)  # SIMD vs scalar exp() may differ in the last bits
 
 
 def test_each_current_pulls_V_toward_its_reversal_potential():
@@ -175,4 +175,4 @@ def test_parameters_can_be_arrays_to_batch_over_axons():
     for k, f in enumerate(fractions):
         single = simulate(HodgkinHuxley(params=replace(DEFAULT_PARAMS, g_K=DEFAULT_PARAMS.g_K * f),
                                         stimulus=ConstantCurrent(5.0)), (0, 30), y0[:, k])
-        np.testing.assert_allclose(batch.y[:, k], single.y, rtol=1e-12, atol=1e-12)
+        np.testing.assert_allclose(batch.y[:, k], single.y, rtol=1e-10, atol=1e-10)  # see test_solvers batch note

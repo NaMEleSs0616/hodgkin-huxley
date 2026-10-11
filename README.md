@@ -400,6 +400,7 @@ Every non-obvious choice, with the reason for it.
 **Vectorization**
 * **`rhs` accepts `(4,)` or `(4, N)`.** A batch of N currents, intervals or even parameter values (array-valued $\bar g$) runs in one integration. Batching amortizes NumPy's per-call overhead, which dominates small arrays.
 * **`rhs` raises on mismatched batch shapes.** A `(4,)` state with N = 4 currents once broadcast silently to garbage.
+* **Batch results equal single runs to ~10⁻¹², not bitwise.** NumPy may use SIMD `exp` for long arrays and the platform libm for short ones. Linux CI exposed a 1.6×10⁻¹² relative difference that macOS hid, so batch-equivalence tests use a 10⁻¹⁰ tolerance.
 
 **Solvers**
 * **RK4 written out by hand** (readable, fast) plus a generic tableau solver for Euler/midpoint. RK4 requires $\Delta t$ to divide the interval exactly, and recomputes $t = t_0 + i\,\Delta t$ instead of accumulating round-off.
