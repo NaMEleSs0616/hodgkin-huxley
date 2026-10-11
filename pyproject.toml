@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hh"
+version = "0.1.0"
+description = "Hodgkin-Huxley squid-axon simulator with from-scratch ODE solvers"
+authors = [{ name = "Deborshi Chakravorty" }]
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy", "matplotlib"]
+
+[tool.setuptools]
+packages = ["hh"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

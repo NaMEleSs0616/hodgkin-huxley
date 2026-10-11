@@ -1,0 +1,111 @@
+"""Single source of truth for model parameters, numerical settings and plot style.
+
+Every script and test imports from here, so changing a number in this file
+changes it everywhere. Units throughout the package:
+
+    time            ms
+    voltage         mV
+    current density uA/cm^2
+    conductance     mS/cm^2
+    capacitance     uF/cm^2
+
+These units are self-consistent: (mS/cm^2) * mV = uA/cm^2 and
+(uA/cm^2) / (uF/cm^2) = mV/ms, so no conversion factors appear in the equations.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+
+import numpy as np
+
+# ---------------------------------------------------------------------------
+# Paths and reproducibility
+# ---------------------------------------------------------------------------
+PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
+FIGURES_DIR: Path = PROJECT_ROOT / "figures"
+
+RANDOM_SEED: int = 20261011
+
+
+def make_rng(seed: int = RANDOM_SEED) -> np.random.Generator:
+    """Return a seeded NumPy generator (used only by optional noisy-input extensions)."""
+    return np.random.default_rng(seed)
+
+
+# ---------------------------------------------------------------------------
+# Model parameters
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class HHParameters:
+    """Hodgkin-Huxley squid-axon parameters (modern convention, rest near -65 mV).
+
+    Frozen so a parameter set can't be mutated by accident; derive variants with
+    ``dataclasses.replace`` (e.g. a TTX-treated axon) or the helpers below.
+    """
+
+    C_m: float = 1.0  # uF/cm^2
+    g_Na: float = 120.0  # mS/cm^2
+    g_K: float = 36.0  # mS/cm^2
+    g_L: float = 0.3  # mS/cm^2
+    E_Na: float = 50.0  # mV
+    E_K: float = -77.0  # mV
+    E_L: float = -54.387  # mV
+    temperature: float = 6.3  # degC, the temperature HH's rate functions were fitted at
+    reference_temperature: float = 6.3  # degC
+    q10: float = 3.0  # rate multiplier per 10 degC
+
+    @property
+    def phi(self) -> float:
+        """Temperature factor multiplying every alpha and beta: Q10^((T - T_ref)/10)."""
+        return self.q10 ** ((self.temperature - self.reference_temperature) / 10.0)
+
+
+DEFAULT_PARAMS = HHParameters()
+
+
+# ---------------------------------------------------------------------------
+# Numerical settings
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class SolverSettings:
+    """Default step sizes and tolerances."""
+
+    rk4_dt: float = 0.01  # ms; comfortably resolves a ~1 ms spike upstroke
+    rtol: float = 1e-6
+    atol: float = 1e-8
+    reference_rtol: float = 1e-12  # for the "ground truth" solution in convergence studies
+    reference_atol: float = 1e-12
+
+
+SOLVER = SolverSettings()
+
+SPIKE_THRESHOLD_MV: float = 0.0  # a spike is an upward crossing of this voltage
+
+
+# ---------------------------------------------------------------------------
+# Plot style (applied by hh.plotting.apply_style)
+# ---------------------------------------------------------------------------
+PLOT_RC: dict[str, object] = {
+    "figure.dpi": 110,
+    "savefig.dpi": 160,
+    "savefig.bbox": "tight",
+    "font.size": 10,
+    "axes.titlesize": 11,
+    "axes.labelsize": 10,
+    "axes.spines.top": False,
+    "axes.spines.right": False,
+    "axes.grid": True,
+    "grid.alpha": 0.25,
+    "lines.linewidth": 1.4,
+    "legend.frameon": False,
+}
+
+# One fixed color per state variable so V/m/n/h look the same in every figure.
+STATE_COLORS: dict[str, str] = {
+    "V": "#1f3a5f",
+    "m": "#d1495b",
+    "n": "#2a9d8f",
+    "h": "#e9a03b",
+}
