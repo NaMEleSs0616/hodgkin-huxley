@@ -74,6 +74,41 @@ RATE_FUNCTIONS = {
 }
 
 
+def _d_inv_exprel(u: FloatArray) -> FloatArray:
+    """d/du [u / (e^u - 1)], safe at u = 0 (where it equals -1/2).
+
+    For |u| < 1e-3 use the Taylor series -1/2 + u/6 - u^3/180 (truncation error < 1e-17);
+    elsewhere the closed form 1/(e^u - 1) - u e^u / (e^u - 1)^2, whose cancellation
+    error is ~ eps/u^2 < 1e-10 relative there.
+    """
+    u = np.asarray(u, dtype=float)
+    small = np.abs(u) < 1e-3
+    us = np.where(small, 1.0, u)  # avoid 0/0 in the branch np.where discards
+    with np.errstate(over="ignore", invalid="ignore"):
+        em1 = np.expm1(us)
+        closed = 1.0 / em1 - us * np.exp(us) / em1**2
+    closed = np.where(np.isfinite(closed), closed, 0.0)  # u -> +inf: derivative -> 0
+    return np.where(small, -0.5 + u / 6.0 - u**3 / 180.0, closed)
+
+
+def rate_derivatives(gate: str, V: ArrayLike, phi: float = 1.0) -> tuple[FloatArray, FloatArray]:
+    """(d alpha/dV, d beta/dV) for one gate, used by the analytic Jacobian."""
+    V = np.asarray(V, dtype=float)
+    if gate == "m":
+        da = _d_inv_exprel(-(V + 40.0) / 10.0) * (-1.0 / 10.0)
+        db = -beta_m(V) / 18.0
+    elif gate == "n":
+        da = 0.1 * _d_inv_exprel(-(V + 55.0) / 10.0) * (-1.0 / 10.0)
+        db = -beta_n(V) / 80.0
+    elif gate == "h":
+        da = -alpha_h(V) / 20.0
+        bh = beta_h(V)
+        db = bh * (1.0 - bh) / 10.0
+    else:
+        raise KeyError(gate)
+    return phi * da, phi * db
+
+
 def rates(gate: str, V: ArrayLike, phi: float = 1.0) -> tuple[FloatArray, FloatArray]:
     """(alpha, beta) for one gate, scaled by the temperature factor phi."""
     a, b = RATE_FUNCTIONS[gate]
@@ -150,6 +185,32 @@ class HodgkinHuxley:
             a, b = rates(gate, V, p.phi)
             out[i] = a * (1.0 - x) - b * x
         return out
+
+    def jacobian(self, t: float, y: FloatArray) -> FloatArray:
+        """Analytic Jacobian J_ij = d f_i / d y_j.
+
+        Args:
+            y: state of shape (4,) or (4, N).
+
+        Returns:
+            shape (4, 4) for a single state, or (N, 4, 4) for a batch (ready for
+            np.linalg.eigvals). The stimulus doesn't depend on y, so it drops out.
+        """
+        p = self.params
+        y = np.asarray(y, dtype=float)
+        V, m, n, h = y
+        J = np.zeros((4, 4) + V.shape)
+        C = p.C_m
+        J[0, 0] = -(p.g_Na * m**3 * h + p.g_K * n**4 + p.g_L) / C
+        J[0, 1] = -3.0 * p.g_Na * m**2 * h * (V - p.E_Na) / C
+        J[0, 2] = -4.0 * p.g_K * n**3 * (V - p.E_K) / C
+        J[0, 3] = -p.g_Na * m**3 * (V - p.E_Na) / C
+        for i, (gate, x) in enumerate(zip(GATES, (m, n, h)), start=1):
+            a, b = rates(gate, V, p.phi)
+            da, db = rate_derivatives(gate, V, p.phi)
+            J[i, 0] = da * (1.0 - x) - db * x
+            J[i, i] = -(a + b)
+        return np.moveaxis(J, (0, 1), (-2, -1))
 
     def resting_potential(self, I_hold: float = 0.0) -> float:
         """Solve I_ss(V) = I_hold for V on the physiological branch.

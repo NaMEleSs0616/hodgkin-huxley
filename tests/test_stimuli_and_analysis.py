@@ -50,3 +50,21 @@ def test_spike_times_on_sine():
 
 def test_no_spikes_when_subthreshold():
     assert spike_times(np.arange(5.0), np.full(5, -65.0)).size == 0
+
+
+def test_hermite_spike_times_are_fourth_order():
+    """With derivative information the crossing error falls like dt^4 instead of dt^2.
+
+    sin(t) + 0.5 crosses 0 where V'' != 0 (a plain sine crosses at an inflection point,
+    which cancels the leading error term and would make both methods look one order better).
+    """
+    true = 0.3 - np.pi / 6 + 2 * np.pi * np.arange(1, 6)
+    errs_lin, errs_herm = [], []
+    for n in (400, 800, 1600):
+        t = np.linspace(0, 10 * np.pi, n)
+        V, dV = np.sin(t - 0.3) + 0.5, np.cos(t - 0.3)
+        errs_lin.append(np.max(np.abs(spike_times(t, V) - true)))
+        errs_herm.append(np.max(np.abs(spike_times(t, V, dVdt=dV) - true)))
+    assert np.log2(errs_lin[-2] / errs_lin[-1]) == pytest.approx(2.0, abs=0.2)
+    assert np.log2(errs_herm[-2] / errs_herm[-1]) == pytest.approx(4.0, abs=0.3)
+    assert errs_herm[-1] < 1e-3 * errs_lin[-1]

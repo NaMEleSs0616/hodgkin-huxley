@@ -109,3 +109,37 @@ STATE_COLORS: dict[str, str] = {
     "n": "#2a9d8f",
     "h": "#e9a03b",
 }
+
+
+# ---------------------------------------------------------------------------
+# Experiment protocols (every number a script uses lives here)
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class ValidationConfig:
+    """Milestone 3: solver validation (scripts/solver_validation.py)."""
+
+    I_drive: float = 10.0  # uA/cm^2, constant from t = 0 so the problem is smooth
+    t_convergence: float = 20.0  # ms: covers one full action potential
+    convergence_dts: tuple[float, ...] = tuple(0.04 / 2**k for k in range(7))  # 0.04 ... 0.000625
+    t_work_precision: float = 100.0  # ms: ~7 spikes
+    t_quiescent: float = 2000.0  # ms of subthreshold dynamics
+    I_quiescent: float = 1.0  # uA/cm^2 step: below the single-spike threshold
+    t_on_quiescent: float = 10.0
+    tolerances: tuple[float, ...] = tuple(10.0**-k for k in range(3, 12))
+    # Work-precision error = max |V - V_ref| on a 1 ms output grid (the whole trajectory, not
+    # just the end: in the quiescent run every stable method ends at the same equilibrium).
+    # RK4 steps are powers of 2 so they land exactly on that grid.
+    error_grid_spacing: float = 1.0
+    rk4_dts_spiking: tuple[float, ...] = tuple(2.0**-k for k in range(4, 10))  # 0.0625 ... 0.002
+    rk4_dts_quiescent: tuple[float, ...] = tuple(2.0**-k for k in range(1, 7))  # 0.5 ... 0.016
+    failure_dts: tuple[float, ...] = (0.01, 0.05, 0.08, 0.094, 0.1)
+    failure_scan_dts: tuple[float, ...] = tuple(np.round(np.arange(0.005, 0.1001, 0.0025), 4))
+    reference_method: str = "DOP853"
+    # DOP853's dense output is ~1e-8 off between long steps (~1.3 ms in quiet stretches) even
+    # when its step values are 1e-12 accurate, so the reference run caps the step.
+    reference_max_step: float = 0.25
+    stiffness_tols: tuple[float, ...] = (1e-3, 1e-6)
+    stiffness_t_end: float = 60.0
+
+
+VALIDATION = ValidationConfig()
