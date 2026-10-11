@@ -451,15 +451,17 @@ Every non-obvious choice, with the reason for it.
 
 ## What I learned
 
-*(Draft — to be rewritten in my own words.)*
+I went into this thinking the hard part would be getting the equations right. It wasn't. The equations took an afternoon; working out whether I could *trust* what the computer told me about them took everything else.
 
-* **"Fourth order" is a theorem with hypotheses.** A discontinuous forcing term quietly broke it, and only a convergence test exposed it. Measure orders; don't assume them.
-* **Stability and accuracy are different constraints.** Linear stability analysis along the trajectory predicted RK4's blow-up step to within ~20 %.
-* **Stiffness depends on the regime, not just the equations.** The same model is non-stiff while spiking and stiff while resting.
-* **Two independent implementations agreeing step for step** is the most convincing test I've written.
-* **Floating point has dynamics of its own.** An unstable equilibrium is an exact fixed point of the discrete map.
-* **Biology through dynamical systems.** Thresholds are graded on a log scale (quasi-threshold), the onset of firing is a subcritical Hopf with bistability, the supernormal period is a damped focus, and heat block is a merger of Hopf points.
-* **Every measurement criterion needs a control.** The 0 mV spike criterion was fooled by passive charging until I built the Na-free control.
+The first surprise came early. I had RK4 working, the spikes looked perfect, and I wrote a convergence test mostly as a formality. It came back first order. It took me a while to believe it, because nothing looked wrong. The problem was that I was switching the current on mid-step, and RK4's fourth-order guarantee quietly assumes the right-hand side is smooth. I'd learned "RK4 is fourth order" as a fact. Now I think of it as a theorem with hypotheses, and I check the hypotheses.
+
+Writing the Dormand–Prince solver taught me what convincing evidence looks like. "My answer is close to scipy's" felt reassuring but didn't prove much. When my implementation turned out to take *exactly* the same steps as scipy's RK45 at every tolerance, down to the last function evaluation, that was the moment I actually believed both of them.
+
+I also finally understood stiffness, which had always been a slightly vague word to me. I had assumed a model either is or isn't stiff. Here it depends on what the neuron is doing: while it's spiking, the fast dynamics *are* the answer and explicit methods do fine; while it's resting, those same fast modes are just decaying noise, and an explicit solver wastes thousands of tiny steps on them. Watching the step sizes pile up against the stability limit made the definition click.
+
+Some of my favourite moments were bugs that turned out to be lessons. My solver refused to leave an unstable equilibrium, and I spent a while hunting for a mistake before realising there wasn't one: the rounding error was smaller than half a unit in the last place, so the computer's version of the equilibrium was exactly stable. And my first TTX result said the axon kept firing with 0.001 % of its sodium channels, which is obviously absurd. The "spikes" were just a big current pulse charging the membrane past 0 mV. That one taught me that every detection rule needs a control experiment, not just a threshold that seems reasonable.
+
+The biology turned out to be dynamical systems in disguise, which is the part I'll remember longest from my ODE course. The all-or-none spike isn't quite all-or-none: zoom in far enough and the response is graded on a log scale. The jump to repetitive firing is a subcritical Hopf bifurcation, with a range of currents where resting and firing coexist. The extra-excitable window after a spike is just the damped oscillation of a stable focus. And the temperature at which the model stops firing repetitively is where two Hopf points collide. Each of these is something I could predict from eigenvalues before I saw it in a simulation, and that felt like the point of the whole project.
 
 ## Limitations
 
