@@ -1,0 +1,15 @@
+equilibrium unstable (Hopf bifurcations) for 9.7754 < I < 154.5224 uA/cm^2
+sustained firing after a step from rest starts at I = 6.2579 uA/cm^2
+sustained firing from (kicked) equilibrium starts at I = 9.9 uA/cm^2
+ramp up:   first interspike interval ends at I = 12.422 (delayed past the Hopf point 9.78 by slow passage)
+ramp down: last interspike interval ends at I = 6.240 (fold of limit cycles)
+=> bistable range ~(6.26, 9.78): rest and repetitive firing coexist
+firing rate jumps from 0 to 52.4 Hz at onset (type II excitability)
+spikes (0 mV crossings) stop above ~62 uA/cm^2; small oscillations continue to ~156 (upper Hopf 154.5)
+  I =    6.3: spikes   52.4 Hz, oscillation   52.4 Hz, amplitude  103.6 mV
+  I =    8.0: spikes   62.5 Hz, oscillation   62.5 Hz, amplitude  106.1 mV
+  I =   10.0: spikes   68.3 Hz, oscillation   68.3 Hz, amplitude  105.3 mV
+  I =   20.0: spikes   86.5 Hz, oscillation   86.5 Hz, amplitude   98.7 mV
+  I =   50.0: spikes  117.0 Hz, oscillation  117.0 Hz, amplitude   76.9 mV
+  I =  100.0: spikes    0.0 Hz, oscillation  147.3 Hz, amplitude   40.5 mV
+saved /Users/deborshi/Hodgkin-Huxley/figures/exp2_fi_curve.png

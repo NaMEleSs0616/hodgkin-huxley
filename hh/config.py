@@ -143,3 +143,125 @@ class ValidationConfig:
 
 
 VALIDATION = ValidationConfig()
+
+
+@dataclass(frozen=True)
+class SpikingConfig:
+    """Experiment 1: step currents, threshold, all-or-none (scripts/exp1_spiking.py)."""
+
+    step_amplitudes: tuple[float, ...] = (1.5, 2.5, 5.0, 8.0, 20.0)  # uA/cm^2
+    step_t_on: float = 10.0
+    step_t_off: float = 110.0
+    step_t_end: float = 130.0
+    pulse_width: float = 0.5  # ms; brief compared with tau_n, tau_h so it acts like a charge kick
+    pulse_t_on: float = 1.0
+    pulse_window: float = 30.0  # ms to wait for a spike after the pulse
+    threshold_hi: float = 100.0  # uA/cm^2 upper bisection bracket
+    threshold_rel_tol: float = 1e-12  # the response is graded within ~1e-10 of threshold
+    amplitude_scan: tuple[float, float, int] = (0.0, 30.0, 601)  # linspace for peak-V vs amplitude
+    log_deltas: tuple[float, ...] = tuple(10.0**-k for k in range(2, 13))
+    rheobase_t_end: float = 100.0
+    repetitive_t_end: float = 600.0
+    repetitive_t_check: float = 300.0  # spikes after this time count as sustained firing
+    dt: float = 0.005
+
+
+@dataclass(frozen=True)
+class FICurveConfig:
+    """Experiment 2: firing rate vs current (scripts/exp2_fi_curve.py)."""
+
+    currents_fine: tuple[float, float, float] = (0.0, 20.0, 0.1)  # arange (start, stop, step)
+    currents_coarse: tuple[float, float, float] = (20.0, 200.0, 2.0)
+    t_end: float = 600.0
+    t_transient: float = 200.0  # discard; rate is measured on [t_transient, t_end]
+    store_every: int = 10  # keep V every 0.1 ms (ample for counting spikes)
+    dt: float = 0.01
+    # Starting exactly on an unstable equilibrium you never leave it (RK4 maps it to itself
+    # bit for bit), so "from equilibrium" runs get a tiny seeded random kick, standing in for
+    # channel noise. Growth near the Hopf point is slow (Re lambda ~ 0.004/ms), hence the long run.
+    equilibrium_kick_mV: float = 0.1
+    equilibrium_currents: tuple[float, float, float] = (0.0, 20.0, 0.1)
+    equilibrium_t_end: float = 2000.0
+    # Slow ramps reveal hysteresis: firing starts and stops at different currents.
+    ramp_low: float = 4.0
+    ramp_high: float = 20.0
+    ramp_duration: float = 8000.0  # ms, i.e. 0.002 uA/cm^2 per ms (~0.03 per spike)
+    ramp_rtol: float = 1e-7
+
+
+@dataclass(frozen=True)
+class RefractoryConfig:
+    """Experiment 3: two-pulse protocol (scripts/exp3_refractory.py)."""
+
+    pulse_width: float = 0.5
+    conditioning_multiple: float = 2.0  # first pulse = 2x resting threshold, so it always fires
+    t_first: float = 1.0
+    intervals: tuple[float, float, float] = (1.5, 40.0, 0.1)  # onset-to-onset, ms (arange)
+    cap_multiple: float = 10.0  # search second-pulse amplitudes up to 10x resting threshold
+    recovered_ratio: float = 1.05  # relative refractory period ends when threshold <= 1.05x rest
+    window_after: float = 15.0
+    example_intervals: tuple[float, ...] = (4.0, 7.0, 10.0, 15.0, 20.0)
+    example_multiple: float = 4.0
+    rel_tol: float = 1e-4
+    dt: float = 0.005
+
+
+@dataclass(frozen=True)
+class BlockerConfig:
+    """Experiment 4: TTX (g_Na down) and TEA (g_K down) (scripts/exp4_blockers.py)."""
+
+    ttx_fractions: tuple[float, ...] = (1.0, 0.8, 0.6, 0.4, 0.2)  # remaining g_Na fraction
+    # Rest stays stable only for g_K fraction > ~0.55 (see the bifurcation panel), so AP shapes
+    # and f-I curves use fractions in that range; lower fractions are shown in the diagram.
+    tea_fractions: tuple[float, ...] = (1.0, 0.85, 0.7, 0.6)
+    pulse_width: float = 0.5
+    shape_multiple: float = 1.5  # AP shapes evoked by a pulse 1.5x that condition's own threshold
+    t_shape: float = 40.0
+    threshold_hi: float = 400.0
+    threshold_window: float = 40.0
+    block_ratio: float = 0.9  # "blocked" once threshold >= 90 % of the passive ceiling
+    ttx_scan: tuple[float, float, int] = (0.02, 1.0, 25)  # linspace of g_Na fractions
+    tea_scan: tuple[float, float, int] = (0.0, 1.0, 101)  # linspace of g_K fractions
+    tea_kick_mV: float = 0.1
+    tea_t_end: float = 800.0
+    tea_t_transient: float = 400.0
+    fi_currents: tuple[float, float, float] = (0.0, 60.5, 0.5)
+    fi_t_end: float = 400.0
+    fi_t_transient: float = 150.0
+    dt: float = 0.01
+
+
+@dataclass(frozen=True)
+class PhasePlaneConfig:
+    """Experiment 5: reduced V-n plane (scripts/exp5_phase_plane.py)."""
+
+    currents: tuple[float, ...] = (0.0, 10.0)
+    V_range: tuple[float, float] = (-85.0, 55.0)
+    n_range: tuple[float, float] = (0.25, 0.85)
+    grid: int = 400
+    # initial V at resting n (m at m_inf(V)); the kick threshold is ~ -60.1 mV in both models
+    kick_voltages: tuple[float, ...] = (-62.0, -61.0, -59.0, -55.0, -40.0)
+    t_end: float = 60.0
+    fit_current: float = 10.0  # h ~ a - b n is fitted on the full model's limit cycle here
+
+
+@dataclass(frozen=True)
+class TemperatureConfig:
+    """Experiment 6: Q10 temperature scaling (scripts/exp6_temperature.py)."""
+
+    temperatures: tuple[float, ...] = (6.3, 10.0, 15.0, 20.0, 25.0, 30.0)
+    q10: float = 3.0
+    fi_temperatures: tuple[float, ...] = (6.3, 15.0, 25.0)
+    fi_currents: tuple[float, float, float] = (0.0, 100.0, 1.0)
+    block_search: tuple[float, float] = (6.3, 45.0)  # bracket for the heat-block temperature
+    pulse_width: float = 0.5
+    threshold_hi: float = 400.0
+    base_dt: float = 0.01  # divided by phi: faster kinetics need proportionally smaller steps
+
+
+SPIKING = SpikingConfig()
+FI_CURVE = FICurveConfig()
+REFRACTORY = RefractoryConfig()
+BLOCKERS = BlockerConfig()
+PHASE_PLANE = PhasePlaneConfig()
+TEMPERATURE = TemperatureConfig()

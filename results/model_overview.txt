@@ -1,0 +1,3 @@
+saved /Users/deborshi/Hodgkin-Huxley/figures/gating_kinetics.png
+6 spikes, ISIs = [14.92 14.65 14.64 14.64 14.64] ms
+saved /Users/deborshi/Hodgkin-Huxley/figures/spike_train_10uA.png

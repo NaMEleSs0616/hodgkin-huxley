@@ -1,0 +1,30 @@
+TTX: fraction | V_rest | threshold | peak | amplitude | half-width | max dV/dt | AHP min
+   1.00 |  -65.00 |   13.28 |  39.30 | 104.30 | 1.458 |  299.0 |  -76.17
+   0.80 |  -65.20 |   17.02 |  36.71 | 101.91 | 1.381 |  262.5 |  -76.10
+   0.60 |  -65.38 |   21.96 |  32.28 |  97.66 | 1.302 |  217.1 |  -75.98
+   0.40 |  -65.56 |   29.42 |  23.65 |  89.20 | 1.242 |  157.6 |  -75.76
+   0.20 |  -65.72 |   59.37 |   7.89 |  73.61 | 1.438 |   88.8 |  -75.23
+TTX: passive ceiling (no Na channels reach 0 mV) = 162.7 uA/cm^2
+TTX: regenerative APs lost below ~14% of g_Na (threshold >= 90% of the passive ceiling)
+   f-I g_Na x1.00: repetitive firing from 6.5 uA/cm^2, rate at 20 uA/cm^2 = 86 Hz
+   f-I g_Na x0.80: repetitive firing from 14.0 uA/cm^2, rate at 20 uA/cm^2 = 79 Hz
+   f-I g_Na x0.60: repetitive firing from nan uA/cm^2, rate at 20 uA/cm^2 = 0 Hz
+   f-I g_Na x0.40: repetitive firing from nan uA/cm^2, rate at 20 uA/cm^2 = 0 Hz
+   f-I g_Na x0.20: repetitive firing from nan uA/cm^2, rate at 20 uA/cm^2 = 0 Hz
+TEA: fraction | V_rest | threshold | peak | amplitude | half-width | max dV/dt | AHP min
+   1.00 |  -65.00 |   13.28 |  39.30 | 104.30 | 1.458 |  299.0 |  -76.17
+   0.85 |  -64.36 |   10.72 |  39.57 | 103.92 | 1.503 |  294.0 |  -76.05
+   0.70 |  -63.51 |    7.65 |  39.69 | 103.20 | 1.554 |  285.8 |  -75.87
+   0.60 |  -62.73 |    5.21 |  40.02 | 102.75 | 1.603 |  282.6 |  -75.71
+TEA: rest unstable (spontaneous activity) for g_K fraction in [0.11, 0.54]; sustained oscillation for [0.11, 0.54]
+   g_K x1.00: equilibrium V =  -65.00 mV, stable, late V range [-65.0, -65.0]
+   g_K x0.75: equilibrium V =  -63.82 mV, stable, late V range [-63.8, -63.8]
+   g_K x0.50: equilibrium V =  -61.62 mV, UNSTABLE, late V range [-75.5, 41.9]
+   g_K x0.25: equilibrium V =  -42.00 mV, UNSTABLE, late V range [-74.0, 44.5]
+   g_K x0.10: equilibrium V =  -29.00 mV, stable, late V range [-29.0, -29.0]
+   g_K x0.00: equilibrium V =   -0.63 mV, stable, late V range [-0.6, -0.6]
+   f-I g_K x1.00: repetitive firing from 6.5 uA/cm^2, rate at 20 uA/cm^2 = 86 Hz
+   f-I g_K x0.85: repetitive firing from 3.5 uA/cm^2, rate at 20 uA/cm^2 = 92 Hz
+   f-I g_K x0.70: repetitive firing from 1.5 uA/cm^2, rate at 20 uA/cm^2 = 97 Hz
+   f-I g_K x0.60: repetitive firing from 1.0 uA/cm^2, rate at 20 uA/cm^2 = 101 Hz
+saved /Users/deborshi/Hodgkin-Huxley/figures/exp4_blockers.png

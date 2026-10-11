@@ -4,16 +4,17 @@ Each stimulus is a callable ``I(t)``. Amplitudes may be NumPy arrays: then
 ``I(t)`` returns one current per trial, which lets a single integration run a
 whole batch of experiments at once (state shape ``(4, N)``).
 
-Piecewise-constant stimuli also expose ``breakpoints``: the times where I_ext
-jumps. ``hh.experiments.simulate`` integrates each constant piece separately,
-because a jump inside a step destroys a Runge-Kutta method's order of accuracy
-(RK4 drops from 4th to 1st order on a current step).
+Stimuli expose ``breakpoints``: the times where I_ext (or its slope) jumps.
+``hh.experiments.simulate`` integrates each piece separately, because a jump
+inside a step destroys a Runge-Kutta method's order of accuracy (RK4 drops from
+4th to 1st order on a current step). Stimuli with ``piecewise_constant = True``
+are additionally frozen to a constant on each piece.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Union
+from typing import Callable, ClassVar, Union
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
@@ -32,6 +33,7 @@ class ConstantCurrent:
     """I_ext = ``amplitude`` for all t."""
 
     amplitude: ArrayLike
+    piecewise_constant: ClassVar[bool] = True
 
     def __call__(self, t: float) -> Current:
         return np.asarray(self.amplitude, dtype=float)
@@ -48,6 +50,7 @@ class StepCurrent:
     amplitude: ArrayLike
     t_on: float = 0.0
     t_off: float = np.inf
+    piecewise_constant: ClassVar[bool] = True
 
     def __call__(self, t: float) -> Current:
         on = self.t_on <= t < self.t_off
@@ -70,6 +73,7 @@ class PulsePair:
     width: float
     t_first: float
     interval: ArrayLike
+    piecewise_constant: ClassVar[bool] = True
 
     def __call__(self, t: float) -> Current:
         amp = np.asarray(self.amplitude, dtype=float)
@@ -83,3 +87,25 @@ class PulsePair:
         t2 = self.t_first + np.ravel(self.interval).astype(float)
         edges = np.concatenate([[self.t_first, self.t_first + self.width], t2, t2 + self.width])
         return tuple(np.unique(edges))
+
+
+@dataclass(frozen=True)
+class RampCurrent:
+    """Current ramping linearly from ``I_start`` (before ``t_start``) to ``I_end`` (after ``t_end``).
+
+    Continuous but with kinks at t_start and t_end, which are its breakpoints.
+    """
+
+    I_start: float
+    I_end: float
+    t_start: float
+    t_end: float
+    piecewise_constant: ClassVar[bool] = False
+
+    def __call__(self, t: float) -> Current:
+        frac = min(max((t - self.t_start) / (self.t_end - self.t_start), 0.0), 1.0)
+        return self.I_start + frac * (self.I_end - self.I_start)
+
+    @property
+    def breakpoints(self) -> tuple[float, ...]:
+        return (self.t_start, self.t_end)

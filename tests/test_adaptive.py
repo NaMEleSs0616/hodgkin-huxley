@@ -241,9 +241,15 @@ def test_rest_is_a_stable_focus():
 # ---------------------------------------------------------------------------
 def test_bisect_threshold_on_known_step_function():
     thresholds = np.array([1.0, 2.5, 7.0])
-    found = bisect_threshold(lambda a: a >= thresholds, 0.0, 10.0, rel_tol=1e-12)
+    found = bisect_threshold(lambda a: a >= thresholds[:, None], np.zeros(3), 10.0, rel_tol=1e-12)
     np.testing.assert_allclose(found, thresholds, rtol=1e-11)
-    assert np.isinf(bisect_threshold(lambda a: a >= 20.0, 0.0, 10.0))
+    assert np.isinf(bisect_threshold(lambda a: a >= 20.0, 0.0, 10.0)[0])
+    # plain bisection (one point per iteration) gives the same answer
+    found2 = bisect_threshold(lambda a: a >= thresholds[:, None], np.zeros(3), 10.0, rel_tol=1e-12,
+                              points=1)
+    with pytest.raises(ValueError, match="shape"):
+        bisect_threshold(lambda a: a >= thresholds[:, None], 0.0, 10.0)  # 1 bracket, 3 responses
+    np.testing.assert_allclose(found2, thresholds, rtol=1e-11)
 
 
 def test_fires_detects_crossings_per_trial():

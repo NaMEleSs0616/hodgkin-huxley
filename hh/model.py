@@ -225,3 +225,42 @@ class HodgkinHuxley:
         """(V_rest, m_inf, n_inf, h_inf): the initial condition for every experiment."""
         V = self.resting_potential(I_hold)
         return np.array([V, *(float(steady_state(g, V)) for g in GATES)])
+
+
+@dataclass
+class RinzelReduced:
+    """Two-variable reduction of HH to the (V, n) plane (Rinzel 1985).
+
+    * m is fast (tau_m ~ 0.1-0.5 ms vs 1-8 ms for n, h), so it is slaved to its steady state:
+      m = m_inf(V) (a quasi-steady-state / slow-manifold approximation).
+    * Along HH trajectories h and n stay close to a line, h ~ h0 - k n, so h is
+      eliminated by that linear relation (the coefficients are fitted from the full model,
+      see hh.experiments.fit_h_n_relation).
+
+    What's left is a planar system, so its whole phase portrait (nullclines, fixed points,
+    limit cycles) can be drawn and the Poincare-Bendixson theorem applies.
+    """
+
+    params: HHParameters = DEFAULT_PARAMS
+    I_ext: float = 0.0
+    h0: float = 0.89
+    k: float = 1.1
+
+    def h_of_n(self, n: ArrayLike) -> FloatArray:
+        return np.clip(self.h0 - self.k * np.asarray(n), 0.0, 1.0)
+
+    def dV(self, V: ArrayLike, n: ArrayLike) -> FloatArray:
+        p = self.params
+        V, n = np.asarray(V, dtype=float), np.asarray(n, dtype=float)
+        m = steady_state("m", V)
+        I_ion = (p.g_Na * m**3 * self.h_of_n(n) * (V - p.E_Na) + p.g_K * n**4 * (V - p.E_K)
+                 + p.g_L * (V - p.E_L))
+        return (self.I_ext - I_ion) / p.C_m
+
+    def dn(self, V: ArrayLike, n: ArrayLike) -> FloatArray:
+        a, b = rates("n", V, self.params.phi)
+        return a * (1.0 - n) - b * n
+
+    def rhs(self, t: float, y: FloatArray) -> FloatArray:
+        V, n = y
+        return np.stack([self.dV(V, n), self.dn(V, n)])

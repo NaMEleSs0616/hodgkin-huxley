@@ -1,0 +1,17 @@
+saved /Users/deborshi/Hodgkin-Huxley/figures/exp1_step_responses.png
+0.5 ms pulse threshold = 13.2751235611 uA/cm^2 (charge 6.638 nC/cm^2)
+time-to-peak grows 0.975 ms per decade closer to threshold -> escape rate lambda ~ 2.36 /ms
+  delta = 1e-02: peak   34.74 mV above threshold,  -57.65 mV below
+  delta = 1e-03: peak   32.02 mV above threshold,  -56.15 mV below
+  delta = 1e-04: peak   29.13 mV above threshold,  -54.88 mV below
+  delta = 1e-05: peak   26.00 mV above threshold,  -53.73 mV below
+  delta = 1e-06: peak   22.55 mV above threshold,  -52.64 mV below
+  delta = 1e-07: peak   18.71 mV above threshold,  -51.58 mV below
+  delta = 1e-08: peak   14.38 mV above threshold,  -50.49 mV below
+  delta = 1e-09: peak    9.46 mV above threshold,  -49.35 mV below
+  delta = 1e-10: peak    4.26 mV above threshold,  -47.93 mV below
+  delta = 1e-11: peak    0.91 mV above threshold,   -1.22 mV below
+  delta = 1e-12: peak    0.14 mV above threshold,   -0.07 mV below
+saved /Users/deborshi/Hodgkin-Huxley/figures/exp1_all_or_none.png
+rheobase (any spike for a step from rest)        = 2.2403 uA/cm^2
+onset of sustained repetitive firing from rest   = 6.2579 uA/cm^2

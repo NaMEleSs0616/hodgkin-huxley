@@ -1,0 +1,6 @@
+fitted on the full limit cycle: h = 0.8699 - 1.0729 n (rms residual 0.0125); Rinzel's published values: 0.89 - 1.1 n
+voltage-kick threshold (peak reaches 0 mV): reduced -60.072 mV, full -60.206 mV
+  I = 0: fixed point V = -65.11 mV, n = 0.3159, eigenvalues [-0.2403+0.3921j -0.2403-0.3921j]
+  I = 10: fixed point V = -59.39 mV, n = 0.4060, eigenvalues [0.1685+0.6648j 0.1685-0.6648j]
+  I = 10: period reduced 11.51 ms vs full 14.64 ms
+saved /Users/deborshi/Hodgkin-Huxley/figures/exp5_phase_plane.png

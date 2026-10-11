@@ -161,3 +161,18 @@ def test_rhs_rejects_mismatched_batch_shapes():
     model = HodgkinHuxley(stimulus=ConstantCurrent(np.array([1.0, 2.0, 3.0])))
     with pytest.raises(ValueError, match="one column per trial"):
         model.rhs(0.0, model.resting_state())
+
+
+def test_parameters_can_be_arrays_to_batch_over_axons():
+    """g_K given as an array of N values simulates N different axons in one call."""
+    from hh.experiments import simulate
+
+    fractions = np.array([1.0, 0.7, 0.4])
+    batch_params = replace(DEFAULT_PARAMS, g_K=DEFAULT_PARAMS.g_K * fractions)
+    y0 = np.column_stack([HodgkinHuxley(params=replace(DEFAULT_PARAMS, g_K=DEFAULT_PARAMS.g_K * f))
+                          .resting_state() for f in fractions])
+    batch = simulate(HodgkinHuxley(params=batch_params, stimulus=ConstantCurrent(5.0)), (0, 30), y0)
+    for k, f in enumerate(fractions):
+        single = simulate(HodgkinHuxley(params=replace(DEFAULT_PARAMS, g_K=DEFAULT_PARAMS.g_K * f),
+                                        stimulus=ConstantCurrent(5.0)), (0, 30), y0[:, k])
+        np.testing.assert_allclose(batch.y[:, k], single.y, rtol=1e-12, atol=1e-12)

@@ -1,0 +1,12 @@
+T (degC) | phi | threshold | peak | half-width (ms) | AHP min
+     6.3 |  1.00 |   13.28 |  39.30 |  1.458 |  -76.17
+    10.0 |  1.50 |   13.57 |  37.44 |  0.978 |  -76.07
+    15.0 |  2.60 |   14.62 |  33.25 |  0.583 |  -75.80
+    20.0 |  4.50 |   16.54 |  26.12 |  0.367 |  -75.24
+    25.0 |  7.80 |   20.57 |  15.48 |  0.254 |  -74.11
+    30.0 | 13.51 |   39.39 |   7.41 |  0.187 |  -72.21
+Hopf interval at 6.3 degC: (9.78, 154.52); it shrinks with temperature and closes at T* = 28.858 degC: above it no constant current can destabilize rest
+f-I at 6.3 degC (dt = 0.01000 ms): spiking from 7 uA/cm^2, max 126 Hz; oscillation max 147 Hz
+f-I at 15 degC (dt = 0.00385 ms): spiking from 7 uA/cm^2, max 265 Hz; oscillation max 328 Hz
+f-I at 25 degC (dt = 0.00128 ms): spiking from nan uA/cm^2, max 0 Hz; oscillation max 692 Hz
+saved /Users/deborshi/Hodgkin-Huxley/figures/exp6_temperature.png

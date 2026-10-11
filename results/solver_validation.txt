@@ -1,0 +1,36 @@
+convergence order
+  reference check |DOP853 - Radau| = 1.3e-12
+  reference check |DOP853 - Radau| = 5.7e-11
+  Euler (order 1)                        observed orders [0.92 0.96 0.98 0.99 0.99 1.  ]
+  Midpoint (RK2) (order 2)               observed orders [1.84 1.93 1.97 1.98 1.99 2.  ]
+  RK4 (order 4)                          observed orders [3.73 3.88 3.94 3.96 3.78 2.18]
+  RK4 stepping through a current jump    observed orders [0.99 1.   1.   1.   1.   1.  ]
+  saved /Users/deborshi/Hodgkin-Huxley/figures/convergence_order.png
+work-precision
+  reference check max |DOP853 - RK4(dt=2^-10)| on grid = 5.3e-09
+  Spiking:  rk4      nfev    6400-  204800  err 8.3e-08-1.1e-01
+  Spiking:  dopri45  nfev    2240-   46112  err 2.8e-08-3.0e+01
+  Spiking:  RK45     nfev    2240-   46112  err 2.8e-08-3.0e+01
+  Spiking:  DOP853   nfev    2783-   22097  err 6.5e-09-1.9e+00
+  Spiking:  LSODA    nfev    1840-   10882  err 8.0e-06-7.4e+01
+  Spiking:  Radau    nfev    3284-  125416  err 1.7e-09-1.9e+00
+  Spiking:  BDF      nfev    1849-   26503  err 1.8e-05-6.4e+01
+  reference check max |DOP853 - RK4(dt=2^-10)| on grid = 4.8e-11
+  Quiescent rk4      nfev   16000-  512000  err 2.2e-10-5.1e-03
+  Quiescent dopri45  nfev   16414-   20686  err 8.0e-10-1.2e-01
+  Quiescent RK45     nfev   16414-   20686  err 8.0e-10-1.2e-01
+  Quiescent DOP853   nfev   21703-   22579  err 5.7e-07-4.2e+00
+  Quiescent LSODA    nfev     113-    1211  err 1.3e-08-1.3e-01
+  Quiescent Radau    nfev     189-    5086  err 2.2e-10-8.1e-03
+  Quiescent BDF      nfev      90-    1389  err 1.8e-08-1.9e-01
+  saved /Users/deborshi/Hodgkin-Huxley/figures/work_precision.png
+step-size failure
+  linear stability limit min_t h_stab = 0.0766 ms; first blow-up in scan at dt = 0.095
+  saved /Users/deborshi/Hodgkin-Huxley/figures/step_size_failure.png
+stiffness
+  most negative Re(lambda) on orbit = -36.4 /ms; stiffness ratio at rest = 38.7; fraction of orbit with a positive eigenvalue = 0.28
+  tol 1e-03: 70% of steps exceed 0.7 h_stab
+  tol 1e-06: 1% of steps exceed 0.7 h_stab
+  quiescent tol 1e-03: dopri45=16414, RK45=16414, DOP853=17428, LSODA=113, Radau=189, BDF=90
+  quiescent tol 1e-06: dopri45=19390, RK45=19390, DOP853=17476, LSODA=387, Radau=448, BDF=295
+  saved /Users/deborshi/Hodgkin-Huxley/figures/stiffness.png

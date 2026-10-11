@@ -1,0 +1,12 @@
+resting threshold 13.2751 uA/cm^2; cap 132.8 uA/cm^2
+control (g_Na = 0, cap amplitude): 0 of 385 starts cross 0 mV -> criterion valid
+absolute refractory period: up to 6.7 ms after the conditioning pulse
+relative refractory period: until 15.8 ms (threshold back within 5 %)
+supernormal phase: threshold falls to 0.843x rest at 19.1 ms
+    5.0 ms: ratio    inf  V  -76.01  h 0.201  n 0.641
+    7.0 ms: ratio  8.900  V  -74.74  h 0.360  n 0.505
+   10.0 ms: ratio  3.497  V  -71.67  h 0.509  n 0.383
+   15.0 ms: ratio  1.179  V  -66.65  h 0.602  n 0.313
+   20.0 ms: ratio  0.852  V  -64.56  h 0.603  n 0.314
+   30.0 ms: ratio  1.017  V  -65.09  h 0.596  n 0.318
+saved /Users/deborshi/Hodgkin-Huxley/figures/exp3_refractory.png

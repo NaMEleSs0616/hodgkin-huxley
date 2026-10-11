@@ -68,3 +68,22 @@ def test_hermite_spike_times_are_fourth_order():
     assert np.log2(errs_lin[-2] / errs_lin[-1]) == pytest.approx(2.0, abs=0.2)
     assert np.log2(errs_herm[-2] / errs_herm[-1]) == pytest.approx(4.0, abs=0.3)
     assert errs_herm[-1] < 1e-3 * errs_lin[-1]
+
+
+def test_ramp_current_and_simulate_follows_it():
+    from hh.experiments import simulate
+    from hh.model import HodgkinHuxley
+    from hh.stimuli import RampCurrent
+
+    r = RampCurrent(0.0, 10.0, t_start=2.0, t_end=12.0)
+    assert [r(t) for t in (0.0, 2.0, 7.0, 12.0, 20.0)] == [0.0, 0.0, 5.0, 10.0, 10.0]
+    assert r.breakpoints == (2.0, 12.0)
+    # leak-only membrane driven by a ramp: compare against the scipy reference
+    from dataclasses import replace
+    from scipy.integrate import solve_ivp
+    from hh.config import DEFAULT_PARAMS
+    model = HodgkinHuxley(params=replace(DEFAULT_PARAMS, g_Na=0.0, g_K=0.0), stimulus=r)
+    y0 = model.resting_state()
+    ours = simulate(model, (0.0, 20.0), y0, dt=0.01)
+    ref = solve_ivp(model.rhs, (0, 20), y0, method="DOP853", rtol=1e-12, atol=1e-12, t_eval=[20.0])
+    assert abs(ours.y[0, -1] - ref.y[0, -1]) < 1e-8
