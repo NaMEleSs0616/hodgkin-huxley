@@ -7,7 +7,7 @@ name = "hh"
 version = "0.1.0"
 description = "Hodgkin-Huxley squid-axon simulator with from-scratch ODE solvers"
 authors = [{ name = "Deborshi Chakravorty" }]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = ["numpy", "scipy", "matplotlib"]
 
 [tool.setuptools]
