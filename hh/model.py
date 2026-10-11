@@ -139,6 +139,11 @@ class HodgkinHuxley:
         I_ext = self.stimulus(t)
 
         dV = (I_ext - I_Na - I_K - I_L) / p.C_m
+        if np.shape(dV) != np.shape(V):
+            raise ValueError(
+                f"stimulus returned shape {np.shape(I_ext)} but the state has trial shape "
+                f"{np.shape(V)}; give y0 one column per trial (hh.experiments.simulate does this)"
+            )
         out = np.empty((4,) + np.shape(dV))  # dV already has the broadcast trial shape
         out[0] = dV
         for i, (gate, x) in enumerate(zip(GATES, (m, n, h)), start=1):

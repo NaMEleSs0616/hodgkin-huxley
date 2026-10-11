@@ -10,9 +10,9 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 
-from hh import HodgkinHuxley, rk4
+from hh import HodgkinHuxley
 from hh.config import SOLVER, STATE_COLORS
-from hh.experiments import spike_times
+from hh.experiments import simulate, spike_times
 from hh.model import GATES, steady_state, time_constant
 from hh.plotting import apply_style, plot_state_trace, save_figure
 from hh.stimuli import StepCurrent
@@ -40,7 +40,7 @@ def gating_kinetics_figure() -> None:
 def spike_train_figure() -> None:
     stim = StepCurrent(10.0, t_on=10.0, t_off=90.0)
     model = HodgkinHuxley(stimulus=stim)
-    sol = rk4(model.rhs, (0.0, 100.0), model.resting_state(), SOLVER.rk4_dt)
+    sol = simulate(model, (0.0, 100.0), dt=SOLVER.rk4_dt)
     I = np.array([stim(t) for t in sol.t])
     st = spike_times(sol.t, sol.y[0])
     print(f"{len(st)} spikes, ISIs = {np.round(np.diff(st), 2)} ms")
